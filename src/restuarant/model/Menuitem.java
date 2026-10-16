@@ -1,0 +1,70 @@
+package restuarant.model;
+
+public class Menuitem{
+    private final int id;
+    private String name;
+    private String category;
+    private double price;
+    private int preparationTime;
+    private boolean available;
+
+    public Menuitem(int id,String name,String category,double price,int preparationTime){
+        if( id <= 0){
+            throw new IllegalArgumentException("Invalid item id");
+        }
+        this.id = id;
+        setName(name);
+        setCategory(category);
+        setPrice(price);
+        setPreparationTime(preparationTime);
+        this.available = true;
+    }
+    public int getId(){
+        return id;
+    }
+    public String getName(){
+        return name;
+    }
+    public String getCategory(){
+        return category;
+    }
+    public double getPrice(){
+        return price;
+    }
+    public int getPreparationTime(){
+        return preparationTime;
+    }
+    public boolean isAvailable(){
+        return available;
+    }
+    public void setName(String name){
+        if(name == null || name.trim().isEmpty()){
+            throw new IllegalArgumentException("Name required");
+        }
+        this.name = name;
+    }
+    public void setCategory(String category){
+        if(category == null || category.trim().isEmpty() ){
+            throw new IllegalArgumentException("Category required");
+        }
+        this.category = category;
+    }
+    public void setPrice(double price){
+        if(!Double.isFinite(price) || price<0){
+            throw new IllegalArgumentException("Invalid price");
+        }
+        this.price = price;
+    }
+    public void setPreparationTime(int minutes){
+        if(minutes<= 0 ){
+            throw new IllegalArgumentException("Preparation time must be positive");
+        }
+        this.preparationTime = minutes;
+    }
+    public void setAvailable(boolean available){
+        this.available = available;
+    }
+    public String toString(){
+        return String.format("%d | %s | %s | Rs. %.2f | %d min | %s", id, name, category, price, preparationTime, available ? "Available" : "Unavailable");
+    }
+}
