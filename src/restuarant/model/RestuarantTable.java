@@ -45,7 +45,7 @@ public class RestuarantTable{
 
     public void seatGuests(int guests, int waiterId){
         if(status != Status.AVAILABLE){
-            throw new IllegalArgumentException("Table is not available");
+            throw new IllegalStateException("Table is not available");
         }
         if(guests <= 0 || guests > capacity){
             throw new IllegalArgumentException("Invalid number of guests");
