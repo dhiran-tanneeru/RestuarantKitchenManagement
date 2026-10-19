@@ -11,6 +11,8 @@ public class RestaurantConsole {
     private final MenuService menuService;
     private final OrderServices orderService;
     private final RestuarantTable[] tables;
+    private final KitchenService kitchenService;
+    private final Chef[] chefs;
 
     public RestaurantConsole() {
         scanner = new Scanner(System.in);
@@ -24,6 +26,12 @@ public class RestaurantConsole {
         }
 
         orderService = new OrderServices(tables);
+
+        kitchenService = new KitchenService();
+
+        chefs = new Chef[2];
+        chefs[0] = new Chef(301, "Kiran");
+        chefs[1] = new Chef(302, "Ravi");
 
         loadSampleMenu();
     }
@@ -71,10 +79,22 @@ public class RestaurantConsole {
                     case 7:
                         orderService.displayActiveOrders();
                         break;
-
                     case 8:
+                        viewKitchenQueue();
+                        break;
+
+                    case 9:
+                        processKitchenOrders();
+                        break;
+
+                    case 10:
+                        serveFood();
+                        break;
+
+                    case 11:
                         System.out.println("Exiting restaurant system...");
                         break;
+
 
                     default:
                         System.out.println("Invalid choice.");
@@ -83,11 +103,16 @@ public class RestaurantConsole {
                 System.out.println( "Operation failed: " + e.getMessage());
             }
 
-        } while (choice != 8);
+        } while (choice != 11);
     }
 
+    
     private void displayMainMenu() {
-        System.out.println( "\n====== RESTAURANT MANAGEMENT ======");
+
+        System.out.println(
+            "\n====== RESTAURANT MANAGEMENT ======"
+        );
+
         System.out.println("1. View Menu");
         System.out.println("2. View Tables");
         System.out.println("3. Seat Customers");
@@ -95,8 +120,12 @@ public class RestaurantConsole {
         System.out.println("5. Create Takeaway Order");
         System.out.println("6. Add Items to Existing Order");
         System.out.println("7. View Active Orders");
-        System.out.println("8. Exit");
+        System.out.println("8. View Kitchen Queue");
+        System.out.println("9. Process Pending Kitchen Orders");
+        System.out.println("10. Mark Food Served / Collected");
+        System.out.println("11. Exit");
     }
+
 
     private int readInt(String prompt) {
         while (true) {
@@ -162,4 +191,89 @@ public class RestaurantConsole {
         orderService.addItemToOrder( orderId, item, quantity, instructions);
         System.out.println( "Item added to order successfully.");
     }
+
+    
+    private void viewKitchenQueue() {
+
+        kitchenService.loadPendingOrders(orderService);
+        kitchenService.displayQueue();
+    }
+
+    private void processKitchenOrders() {
+
+        kitchenService.loadPendingOrders(orderService);
+
+        if (kitchenService.getTaskCount() == 0) {
+            System.out.println("No pending kitchen orders.");
+            return;
+        }
+
+        System.out.println("\nStarting kitchen workers...");
+
+        Thread[] workers = new Thread[chefs.length];
+        int started = 0;
+
+        for (int i = 0; i < chefs.length; i++) {
+
+            if (!chefs[i].isActive()) {
+                continue;
+            }
+
+            ChefWorker worker = new ChefWorker( chefs[i], kitchenService );
+
+            workers[started] = new Thread( worker, "Chef-" + chefs[i].getEmployeeId());
+
+            workers[started].start();
+            started++;
+        }
+
+        if (started == 0) {
+            System.out.println("No active chefs available.");
+            return;
+        }
+
+        boolean interrupted = false;
+
+        for (int i = 0; i < started; i++) {
+            boolean joined = false;
+
+            while (!joined) {
+                try {
+                    workers[i].join();
+                    joined = true;
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
+        }
+
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println( "\nKitchen processing finished.");
+    }
+
+    private void serveFood() {
+
+        int orderId = readInt("Order ID: ");
+        int itemNumber = readInt("Order item number: ");
+
+        Order order = orderService.findOrder(orderId);
+
+        if (order == null) {
+            throw new IllegalArgumentException( "Order not found");
+        }
+
+        OrderItem item = order.getItem(itemNumber - 1);
+
+        if (order.getOrderType() == Order.OrderType.DINE_IN) {
+            item.markServed();
+            System.out.println("Dish marked as served.");
+        } else {
+            item.markCollected();
+            System.out.println("Takeaway dish marked as collected.");
+        }
+    }
+
 }

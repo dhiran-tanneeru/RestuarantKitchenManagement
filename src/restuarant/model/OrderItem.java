@@ -15,8 +15,11 @@ public class OrderItem {
     private final int quantity;
     private final double unitPrice;
     private final String instructions;
+    private int assignedChefId = 0;
+    private long preparationStartedAt = 0;
+    private long preparationFinishedAt = 0;
 
-    private Status status;
+    private volatile Status status;
 
     public OrderItem(Menuitem menuitem, int quantity,
                      String instructions) {
@@ -65,19 +68,50 @@ public class OrderItem {
         return unitPrice * quantity;
     }
 
-    public void startPreparing() {
-        if (status != Status.PENDING) {
-            throw new IllegalStateException("Item is not pending");
-        }
-        status = Status.PREPARING;
+
+    
+    public int getAssignedChefId() {
+        return assignedChefId;
     }
 
-    public void markReady() {
-        if (status != Status.PREPARING) {
-            throw new IllegalStateException("Item is not being prepared");
+    public long getPreparationStartedAt() {
+        return preparationStartedAt;
+    }
+
+    public long getPreparationFinishedAt() {
+        return preparationFinishedAt;
+    }
+
+    public long getActualPreparationTime() {
+        if (preparationStartedAt == 0 || preparationFinishedAt == 0) {
+            return 0;
         }
+        return preparationFinishedAt - preparationStartedAt;
+    }
+
+    
+    public synchronized void startPreparing(int chefId) {
+        if (status != Status.PENDING) {
+            throw new IllegalStateException( "Dish is not pending");
+        }
+        if (chefId <= 0) {
+            throw new IllegalArgumentException( "Invalid chef ID");
+        }
+
+        assignedChefId = chefId;
+        preparationStartedAt = System.currentTimeMillis();
+        status = Status.PREPARING;
+    }
+    
+    public synchronized void markReady() {
+        if (status != Status.PREPARING) {
+            throw new IllegalStateException("Dish is not being prepared");
+        }
+
+        preparationFinishedAt = System.currentTimeMillis();
         status = Status.READY;
     }
+
 
     public void markServed() {
         if (status != Status.READY) {

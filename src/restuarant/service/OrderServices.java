@@ -118,4 +118,17 @@ public class OrderServices {
             System.out.println("No active orders.");
         }
     }
+
+    
+    public int getOrderCount() {
+        return orderCount;
+    }
+
+    public Order getOrderAt(int index) {
+        if (index < 0 || index >= orderCount) {
+            throw new IllegalArgumentException( "Invalid order index");
+        }
+        return orders[index];
+    }
+
 }
