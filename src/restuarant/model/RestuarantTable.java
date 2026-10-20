@@ -1,6 +1,8 @@
 package restuarant.model;
+import java.io.Serializable;
 
-public class RestuarantTable{
+public class RestuarantTable implements Serializable{
+    private static final long serialVersionUID = 1L;
     public enum Status{
         AVAILABLE,
         OCCUPIED,

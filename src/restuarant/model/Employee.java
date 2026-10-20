@@ -1,7 +1,9 @@
 
 package restuarant.model;
+import java.io.Serializable;
 
-public abstract class Employee {
+public abstract class Employee implements Serializable{
+    private static final long serialVersionUID = 1L;
 
     private final int employeeId;
     private String name;

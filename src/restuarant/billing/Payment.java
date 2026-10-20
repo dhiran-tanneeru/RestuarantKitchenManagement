@@ -1,9 +1,10 @@
 package restuarant.billing;
-
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class Payment {
+public class Payment implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     public enum Method {
         CASH, UPI, CARD

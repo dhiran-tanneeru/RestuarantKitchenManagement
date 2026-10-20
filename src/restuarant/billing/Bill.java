@@ -1,11 +1,12 @@
 
 package restuarant.billing;
-
+import java.io.Serializable;
 import restuarant.model.*;
 
 import java.math.*;
 
-public class Bill {
+public class Bill implements Serializable{
+    private static final long serialVersionUID = 1L;
 
     private final Order order;
     private final BigDecimal taxRate;

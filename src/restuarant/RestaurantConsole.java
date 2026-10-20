@@ -1,5 +1,8 @@
 package restuarant;
 
+import java.io.*;
+
+import restuarant.persistence.*;
 import java.util.Scanner;
 
 import restuarant.model.*;
@@ -21,32 +24,58 @@ public class RestaurantConsole {
     private final Manager manager;
     private final Cashier cashier;
 
-    public RestaurantConsole() {
+    
+    public RestaurantConsole() throws IOException, ClassNotFoundException {
+
         scanner = new Scanner(System.in);
 
-        menuService = new MenuService();
+        if (FileManager.saveExists()) {
 
-        tables = new RestuarantTable[20];
+            RestaurantState state = FileManager.load();
 
-        for (int i = 0; i < tables.length; i++) {
-            tables[i] = new RestuarantTable(i + 1, 4);
+            menuService = state.getMenuService();
+            orderService = state.getOrderService();
+            billingService = state.getBillingService();
+
+            tables = orderService.getTables();
+
+            chefs = state.getChefs();
+            manager = state.getManager();
+            cashier = state.getCashier();
+
+            kitchenService = new KitchenService();
+
+            System.out.println("Previous restaurant data restored successfully.");
+
+        } 
+        else {
+
+            menuService = new MenuService();
+
+            tables = new RestuarantTable[20];
+
+            for (int i = 0; i < tables.length; i++) {
+                tables[i] = new RestuarantTable(i + 1, 4);
+            }
+
+            orderService = new OrderServices(tables);
+            kitchenService = new KitchenService();
+
+            billingService = new BillingService(new java.math.BigDecimal("5"));
+
+            manager = new Manager(101, "Arjun");
+            cashier = new Cashier(401, "Priya");
+
+            chefs = new Chef[2];
+            chefs[0] = new Chef(301, "Kiran");
+            chefs[1] = new Chef(302, "Ravi");
+
+            loadSampleMenu();
+
+            System.out.println("New restaurant initialized successfully.");
         }
-
-        orderService = new OrderServices(tables);
-
-        kitchenService = new KitchenService();
-
-        chefs = new Chef[2];
-        chefs[0] = new Chef(301, "Kiran");
-        chefs[1] = new Chef(302, "Ravi");
-
-        billingService = new BillingService( new BigDecimal("5"));
-
-        manager = new Manager(101, "Arjun");
-        cashier = new Cashier(401, "Priya");
-
-        loadSampleMenu();
     }
+
 
     private void loadSampleMenu() {
         menuService.addMenuItem(new Menuitem( 101, "Chicken Biryani", "Main Course", 250, 25));
@@ -124,10 +153,18 @@ public class RestaurantConsole {
                         break;
 
                     case 16:
-                        System.out.println("Exiting restaurant system...");
+                        saveData();
                         break;
 
-
+                    case 17:
+                        if (saveData()) {
+                            System.out.println("Exiting restaurant system...");
+                        } 
+                        else {
+                            choice = -1;
+                        }
+                        break;
+                        
                     default:
                         System.out.println("Invalid choice.");
                 }
@@ -135,7 +172,7 @@ public class RestaurantConsole {
                 System.out.println( "Operation failed: " + e.getMessage());
             }
 
-        } while (choice != 16);
+        } while (choice != 17);
     }
 
     
@@ -160,7 +197,8 @@ public class RestaurantConsole {
         System.out.println("13. Apply Special Discount");
         System.out.println("14. Record Payment");
         System.out.println("15. Close Paid Order");
-        System.out.println("16. Exit");
+        System.out.println("16. Save Data");
+        System.out.println("17. Exit");
     }
 
 
@@ -427,6 +465,26 @@ public class RestaurantConsole {
 
         if (table != null) {
             System.out.println( "Table is now awaiting cleaning.");
+        }
+    }
+
+    
+    private boolean saveData() {
+
+        RestaurantState state = new RestaurantState( menuService, orderService, billingService, chefs, manager, cashier);
+
+        try {
+            FileManager.save(state);
+
+            System.out.println("Restaurant data saved successfully.");
+
+            return true;
+
+        } catch (IOException e) {
+
+            System.out.println("Save failed: " + e.getMessage());
+
+            return false;
         }
     }
 

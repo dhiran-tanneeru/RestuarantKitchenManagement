@@ -1,9 +1,10 @@
 
 package restuarant.service;
-
+import java.io.Serializable;
 import restuarant.model.*;
 
-public class OrderServices {
+public class OrderServices implements Serializable{
+    private static final long serialVersionUID = 1l;
 
     private final Order[] orders;
     private final RestuarantTable[] tables;
@@ -129,6 +130,10 @@ public class OrderServices {
             throw new IllegalArgumentException( "Invalid order index");
         }
         return orders[index];
+    }
+
+    public RestuarantTable[] getTables() {
+        return tables.clone();
     }
 
 }

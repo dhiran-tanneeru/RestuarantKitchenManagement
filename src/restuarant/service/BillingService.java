@@ -1,12 +1,13 @@
 
 package restuarant.service;
-
+import java.io.Serializable;
 import restuarant.billing.*;
 import restuarant.model.*;
 
 import java.math.BigDecimal;
 
-public class BillingService {
+public class BillingService implements Serializable{
+    private static final long serialVersionUID = 1L;
 
     private final Bill[] bills = new Bill[500];
     private int billCount = 0;

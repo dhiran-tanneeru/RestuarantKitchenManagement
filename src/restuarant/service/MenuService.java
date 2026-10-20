@@ -1,9 +1,11 @@
 
 package restuarant.service;
+import java.io.Serializable;
 
 import restuarant.model.*;
 
-public class MenuService {
+public class MenuService implements Serializable{
+    private static final long serialVersionUID = 1L;
 
     private final Menuitem[] menuItems;
     private int count;
