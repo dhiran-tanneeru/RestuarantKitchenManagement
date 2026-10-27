@@ -96,6 +96,7 @@ public class Bill implements Serializable{
 
         restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
         order.ensureEditable();
+        order.ensureNoCancellation();
 
         if (rate == null || rate.signum() < 0 || rate.compareTo(new BigDecimal("100")) > 0) {
             throw new IllegalArgumentException( "Discount must be between 0 and 100" );
@@ -110,10 +111,18 @@ public class Bill implements Serializable{
         }
     }
 
+    public void applyPredefinedOffer(){
+        synchronized(order){
+            restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.CASHIER);
+            order.ensureEditable();order.ensureNoCancellation();
+            discountRate=new BigDecimal("10");
+        }
+    }
     public void addPayment(Payment payment) {
         synchronized(order) {
 
         restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.CASHIER);
+        order.requireOperational();order.ensureNoCancellation();
         if(order.getStatus()!=Order.OrderStatus.OPEN) throw new IllegalStateException("Order closed");
 
         if (payment == null || payment.getOrderId() != getOrderId()) {

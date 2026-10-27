@@ -1,7 +1,6 @@
 package restuarant;
 import restuarant.auth.*;
 import restuarant.auth.StaffAccount.Role;
-import restuarant.auth.Access;
 import restuarant.model.*;
 import restuarant.service.*;
 import restuarant.billing.*;
@@ -156,9 +155,16 @@ public class LoginDemo {
             if(role==Role.ADMIN || role==Role.CASHIER) System.out.println("21. Record payment (repeat for split / partial payments)");
             if(role==Role.ADMIN || role==Role.CASHIER || role==Role.MANAGER) System.out.println("22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports");
             if(role==Role.ADMIN || role==Role.MANAGER || role==Role.CHEF) System.out.println("25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready");
-            System.out.println("28. Save / retry save  0. Logout");
+            if(role!=Role.CHEF)System.out.println("30. Update pending item  31. Urgent / normal priority  32. Request whole-order cancellation");
+            if(role==Role.ADMIN || role==Role.MANAGER || role==Role.CHEF)System.out.println("33. Kitchen delay report");
+            if(role==Role.CHEF)System.out.println("34. My assigned dishes");
+            if(role==Role.ADMIN || role==Role.MANAGER)System.out.println("35. Close business day  36. Open next business date  37. Closure history");
+            if(role==Role.ADMIN || role==Role.MANAGER || role==Role.CASHIER)System.out.println("38. Sales by business date  40. Predefined 10% offer");
+            System.out.println("Business date: "+app.state.getBusinessDay().getDate()+" | "+(app.state.getBusinessDay().isOpen()?"OPEN":"CLOSED"));
+            System.out.println("28. Save / retry save  39. Change my password  0. Logout");
             int choice=readInt("Choice: ");if(choice==0) return;
             try {
+                if(choice==39) { changeOwnPassword();return; }
                 if(choice==5) { employees();continue; }
                 if(choice==23) { takeaway();continue; }
                 // Collect arguments before taking the state monitor: background cooking never waits on user input.
@@ -203,6 +209,16 @@ public class LoginDemo {
             case 26:return ()->{OrderItem item=app.kitchen.claimNextTask(Access.current().getEmployeeId());System.out.println(item==null?"No eligible task available":item);};
             case 27:{int id=readInt("Order ID: "),index=readInt("Item number: ")-1;return ()->app.kitchen.markReady(id,index);}
             case 29:{int id=readInt("Empty order ID: ");String reason=readRequiredLine("Reason: ");return ()->app.abandonEmpty(id,reason);}
+            case 30:return updateDish(false);
+            case 31:return priority(false);
+            case 32:return cancelWhole(false);
+            case 33:return ()->System.out.println(app.kitchen.delayReport());
+            case 34:return ()->app.kitchen.displayMyWork();
+            case 35:{Access.require(Role.ADMIN,Role.MANAGER);synchronized(app.state){for(String row:app.state.getBusinessDay().exceptions(app.state))System.out.println(row);}String note=readRequiredLine("Closure explanation / plan for unresolved exceptions: ");return ()->System.out.println(app.closeBusinessDay(note));}
+            case 36:{Access.require(Role.ADMIN,Role.MANAGER);java.time.LocalDate date=java.time.LocalDate.parse(readRequiredLine("Next business date (YYYY-MM-DD): ").trim());return ()->app.openBusinessDay(date);}
+            case 37:return ()->{Access.require(Role.ADMIN,Role.MANAGER);for(DayCloseRecord record:app.state.getBusinessDay().history())System.out.println(record);};
+            case 38:{java.time.LocalDate date=java.time.LocalDate.parse(readRequiredLine("Report business date (YYYY-MM-DD): ").trim());return ()->System.out.println(app.report(date));}
+            case 40:return predefined(false);
             case 28:app.save();System.out.println("Saved.");return ()->{};
             default:throw new IllegalArgumentException("Invalid option");
         }
@@ -222,6 +238,29 @@ public class LoginDemo {
         int id=readInt("Order ID: "),index=readInt("Item number: ")-1;String reason=readRequiredLine("Reason: ");
         return ()->{if(takeaway)requireTakeaway(id);System.out.println(app.state.getCancellations().request(app.state.getOrderService().requireOrder(id),index,reason));};
     }
+    private Runnable updateDish(boolean takeaway){
+        int id=readInt("Order ID: "),index=readInt("Item number: ")-1,quantity=readInt("New quantity: ");String notes=readRequiredLine("New instructions: ");
+        return ()->{if(takeaway)requireTakeaway(id);app.state.getOrderService().updateItem(id,index,quantity,notes);System.out.println("Item updated.");};
+    }
+    private Runnable priority(boolean takeaway){
+        int id=readInt("Order ID: ");boolean urgent=yes("Urgent (yes/no): ");String reason=readRequiredLine("Priority reason: ");
+        return ()->{if(takeaway)requireTakeaway(id);app.state.getOrderService().setUrgent(id,urgent,reason);System.out.println("Priority updated.");};
+    }
+    private Runnable cancelWhole(boolean takeaway){
+        int id=readInt("Order ID: ");String reason=readRequiredLine("Whole-order cancellation reason: ");
+        return ()->{if(takeaway)requireTakeaway(id);System.out.println(app.state.getCancellations().requestWhole(app.state.getOrderService().requireOrder(id),reason));};
+    }
+    private Runnable predefined(boolean takeaway){
+        int id=readInt("Order ID: ");return ()->{if(takeaway)requireTakeaway(id);app.state.getBillingService().predefinedOffer(id);app.state.audit("Employee "+Access.current().getEmployeeId()+" applied predefined 10% offer to order "+id);System.out.println(app.state.getBillingService().findBill(id));};
+    }
+    private void changeOwnPassword()throws IOException{
+        char[] old=readPassword("Current password: "),replacement=null;
+        try{
+            replacement=readConfirmedPassword("New password: ","Confirm new password: ");
+            synchronized(app.state){app.healthy();StaffAccount actor=Access.current();actor.changeOwnPassword(old,replacement);app.state.audit("Employee "+actor.getEmployeeId()+" changed own password");app.save();}
+            System.out.println("Password changed. Please log in again.");
+        }finally{Arrays.fill(old,'\0');if(replacement!=null)Arrays.fill(replacement,'\0');}
+    }
     private Runnable payment(boolean takeaway) {
         int id=readInt("Order ID: ");Payment.Method method=Payment.Method.valueOf(readRequiredLine("CASH / UPI / CARD: ").trim().toUpperCase(Locale.ROOT));BigDecimal amount=money("Amount: ");
         return ()->{if(takeaway)requireTakeaway(id);System.out.println(app.state.getBillingService().pay(id,method,amount));System.out.println(app.state.getBillingService().findBill(id));};
@@ -230,18 +269,22 @@ public class LoginDemo {
     private void takeaway() throws IOException {
         Access.require(Role.ADMIN,Role.MANAGER,Role.CASHIER);
         while(true) {
-            System.out.println("\n===== TAKEAWAY WORKSPACE =====\n1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request cancellation  0. Back");
+            System.out.println("\n===== TAKEAWAY WORKSPACE =====\n1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request item cancellation  8. Update pending item  9. Priority  10. Cancel whole order  11. Predefined offer  0. Back");
             int choice=readInt("Choice: ");if(choice==0)return;
             try {
                 Runnable action;
                 switch(choice) {
                     case 1:action=()->System.out.println("Pickup token / order ID: "+app.state.getOrderService().createTakeawayOrder().getOrderId());break;
                     case 2:action=addDish(true);break;
-                    case 3:action=()->{for(int i=0;i<app.state.getOrderService().getOrderCount();i++){Order o=app.state.getOrderService().getOrderAt(i);if(o.getOrderType()==Order.OrderType.TAKEAWAY){boolean ready=o.getItemCount()>0;for(int j=0;j<o.getItemCount();j++)if(o.getItem(j).getStatus()!=OrderItem.Status.READY && o.getItem(j).getStatus()!=OrderItem.Status.CANCELLED)ready=false;System.out.println(o+"\nReady for collection: "+ready);}}};break;
+                    case 3:action=()->{for(int i=0;i<app.state.getOrderService().getOrderCount();i++){Order o=app.state.getOrderService().getOrderAt(i);if(o.getOrderType()==Order.OrderType.TAKEAWAY){boolean ready=o.getStatus()==Order.OrderStatus.OPEN && o.getItemCount()>0;for(int j=0;j<o.getItemCount();j++)if(o.getItem(j).getStatus()!=OrderItem.Status.READY && o.getItem(j).getStatus()!=OrderItem.Status.CANCELLED)ready=false;System.out.println(o+"\nReady for collection: "+ready);}}};break;
                     case 4:{int id=readInt("Order ID: ");action=()->{requireTakeaway(id);System.out.println(app.state.getBillingService().generateBill(app.state.getOrderService().requireOrder(id)));};break;}
                     case 5:action=payment(true);break;
                     case 6:{int id=readInt("Order ID: ");action=()->app.collect(id);break;}
                     case 7:action=cancel(true);break;
+                    case 8:action=updateDish(true);break;
+                    case 9:action=priority(true);break;
+                    case 10:action=cancelWhole(true);break;
+                    case 11:action=predefined(true);break;
                     default:throw new IllegalArgumentException("Invalid option");
                 }
                 synchronized(app.state){app.healthy();action.run();app.commit("Takeaway action "+choice);}

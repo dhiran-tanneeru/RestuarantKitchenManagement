@@ -146,8 +146,14 @@ public class StaffAccount implements Serializable {
     }
 
     
+    public void changeOwnPassword(char[] currentPassword,char[] newPassword){
+        if(Access.current()!=this || !verifyPassword(currentPassword))throw new SecurityException("Current password is incorrect");
+        replacePassword(newPassword);
+    }
     public void changePassword(char[] newPassword) {
-        admin();
+        admin();replacePassword(newPassword);
+    }
+    private void replacePassword(char[] newPassword){
         validatePassword(newPassword);
         credentialVersion++;
 

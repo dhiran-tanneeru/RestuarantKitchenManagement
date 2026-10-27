@@ -74,16 +74,17 @@ public class BillingService implements Serializable{
     public void applyPredefinedDiscount(
             int orderId, Cashier cashier) {
 
-        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.CASHIER);
         if (cashier == null || !cashier.isActive()) {
             throw new IllegalStateException( "Active cashier required");
         }
 
         Bill bill = requireBill(orderId);
 
-        bill.setDiscountRate( new BigDecimal("10") );
+        bill.applyPredefinedOffer();
     }
 
+    public void predefinedOffer(int orderId){requireBill(orderId).applyPredefinedOffer();}
     public void applySpecialDiscount( int orderId, BigDecimal rate, Manager manager) {
 
         restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
@@ -110,7 +111,7 @@ public class BillingService implements Serializable{
             throw new IllegalStateException("Bill already fully paid");
         }
 
-        Payment payment = new Payment(nextPaymentId, orderId, method, amount);
+        Payment payment = new Payment(nextPaymentId, orderId, method, amount, orderRegistry==null?java.time.LocalDate.now():orderRegistry.businessDate());
 
         bill.addPayment(payment);
         nextPaymentId++;
@@ -125,6 +126,7 @@ public class BillingService implements Serializable{
             throw new IllegalArgumentException( "Order required");
         }
 
+        order.requireOperational();
         Bill bill = requireBill(order.getOrderId());
         if(bill.getOrder()!=order || (orderRegistry!=null && orderRegistry.findOrder(order.getOrderId())!=order)) throw new IllegalArgumentException("Order does not match canonical bill");
         if(order.getOrderType()==Order.OrderType.DINE_IN && orderRegistry!=null && orderRegistry.findTable(order.getTableNumber())!=table) throw new IllegalArgumentException("Canonical restaurant table required");

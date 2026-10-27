@@ -10,6 +10,13 @@ public class OrderServices implements Serializable{
     private RestuarantTable[] tables;
     private int orderCount;
     private int nextOrderId;
+    private transient restuarant.persistence.RestaurantState context;
+    public void bind(restuarant.persistence.RestaurantState state){context=state;for(int i=0;i<orderCount;i++)orders[i].attachContext(state);}
+    public java.time.LocalDate businessDate(){return context==null?java.time.LocalDate.now():context.getBusinessDay().getDate();}
+    private void operational(){if(context!=null)context.getBusinessDay().requireOpen();}
+    public void updateItem(int id,int index,int quantity,String instructions){operational();requireOrder(id).updateItem(index,quantity,instructions);}
+    public void setUrgent(int id,boolean urgent,String reason){operational();requireOrder(id).setUrgent(urgent,reason);}
+
 
     public OrderServices(RestuarantTable[] tables) {
         if (tables == null) {
@@ -52,6 +59,7 @@ public class OrderServices implements Serializable{
     }
 
     public synchronized Order createDineInOrder(int tableNumber) {
+        operational();
         restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.WAITER);
 
         RestuarantTable table = findTable(tableNumber);
@@ -73,6 +81,7 @@ public class OrderServices implements Serializable{
         checkOrderCapacity();
 
         Order order = new Order( nextOrderId++, Order.OrderType.DINE_IN, tableNumber);
+        if(context!=null)order.attachContext(context);
         orders[orderCount++] = order;
         order.assignWaiter(table.getWaiterId());
         table.attachOrder(order);
@@ -80,10 +89,12 @@ public class OrderServices implements Serializable{
     }
 
     public synchronized Order createTakeawayOrder() {
+        operational();
         restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.CASHIER);
         checkOrderCapacity();
 
         Order order = new Order( nextOrderId++, Order.OrderType.TAKEAWAY, 0);
+        if(context!=null)order.attachContext(context);
         orders[orderCount++] = order;
         return order;
     }
@@ -147,11 +158,13 @@ public class OrderServices implements Serializable{
     public RestuarantTable requireTable(int number) { RestuarantTable t=findTable(number); if(t==null) throw new IllegalArgumentException("Unknown table"); return t; }
     public Order requireOrder(int id) { Order o=findOrder(id); if(o==null) throw new IllegalArgumentException("Unknown order"); return o; }
     public void serve(int id,int index) {
+        operational();
         Order o=requireOrder(id); restuarant.auth.Access.order(o);
         if(o.getOrderType()!=Order.OrderType.DINE_IN) throw new IllegalStateException("Use takeaway collection");
         o.getItem(index).markServed();
     }
     public void clean(int number) {
+        operational();
         restuarant.auth.StaffAccount a=restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.WAITER);
         RestuarantTable t=requireTable(number);
         if(a.getRole()==restuarant.auth.StaffAccount.Role.WAITER && a.getEmployeeId()!=t.getWaiterId()) throw new SecurityException("Assigned waiter required");

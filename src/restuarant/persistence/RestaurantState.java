@@ -12,6 +12,8 @@ public class RestaurantState implements Serializable {
 
     private restuarant.auth.StaffService staff;
     private CancellationService cancellations;
+    private BusinessDayService businessDay;
+    public BusinessDayService getBusinessDay(){if(businessDay==null)businessDay=new BusinessDayService();return businessDay;}
     private java.util.List<String> history;
     public restuarant.auth.StaffService getStaff() { return staff; }
     public CancellationService getCancellations() { if(cancellations==null) cancellations=new CancellationService(); return cancellations; }
@@ -20,7 +22,7 @@ public class RestaurantState implements Serializable {
     public void integrate(restuarant.auth.StaffService accounts) {
         if(staff==null) staff=accounts;
         if(staff==null) throw new IllegalStateException("Staff registry missing");
-        getCancellations(); getHistory(); orderService.reconnect(); billingService.bind(orderService); billingService.reconnect();
+        getCancellations(); getBusinessDay(); getHistory(); orderService.bind(this); orderService.reconnect(); getCancellations().bind(orderService); billingService.bind(orderService); billingService.reconnect();
         for(int i=0;i<orderService.getOrderCount();i++) {
             Order o=orderService.getOrderAt(i);
             for(int j=0;j<o.getItemCount();j++) o.getItem(j).recoverInterrupted();

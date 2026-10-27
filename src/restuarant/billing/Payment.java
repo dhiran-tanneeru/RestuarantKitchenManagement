@@ -15,6 +15,11 @@ public class Payment implements Serializable {
     private final Method method;
     private final BigDecimal amount;
     private final LocalDateTime paidAt;
+    private java.time.LocalDate businessDate;
+    public java.time.LocalDate getBusinessDate(){return businessDate==null?paidAt.toLocalDate():businessDate;}
+    public Payment(int paymentId,int orderId,Method method,BigDecimal amount,java.time.LocalDate date){
+        this(paymentId,orderId,method,amount);if(date==null)throw new IllegalArgumentException("Business date required");businessDate=date;
+    }
 
     public Payment(int paymentId, int orderId, Method method, BigDecimal amount) {
          if (paymentId <= 0 || orderId <= 0) {

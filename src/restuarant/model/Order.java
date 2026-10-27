@@ -18,6 +18,39 @@ public class Order implements Serializable{
     private final OrderType orderType;
     private int tableNumber;
     private int waiterId;
+    private boolean urgent;
+    private String priorityReason="";
+    private long createdAt=System.currentTimeMillis();
+    private transient restuarant.persistence.RestaurantState context;
+    private transient restuarant.service.CancellationService cancellationService;
+    public long getCreatedAt(){return createdAt;}
+    public boolean isUrgent(){return urgent;}
+    public void attachContext(restuarant.persistence.RestaurantState state){context=state;cancellationService=state.getCancellations();}
+    public void requireOperational(){if(context!=null)context.getBusinessDay().requireOpen();}
+    public boolean hasPendingCancellation(){return cancellationService!=null && cancellationService.hasPending(orderId);}
+    public boolean isCancellationHeld(int index){return cancellationService!=null && cancellationService.isHeld(orderId,index);}
+    public void ensureNoCancellation(){if(hasPendingCancellation())throw new IllegalStateException("Resolve pending cancellation before changing the bill or taking payment");}
+    public synchronized void setUrgent(boolean value,String reason){
+        restuarant.auth.Access.order(this);ensureEditable();
+        if(reason==null || reason.trim().isEmpty())throw new IllegalArgumentException("Priority change reason required");
+        urgent=value;priorityReason=reason.trim();
+        if(context!=null)context.audit("Employee "+restuarant.auth.Access.current().getEmployeeId()+" priority for order "+orderId+" = "+value+" | "+reason);
+    }
+    public synchronized void updateItem(int index,int quantity,String instructions){
+        restuarant.auth.Access.order(this);ensureEditable();
+        if(isCancellationHeld(index))throw new IllegalStateException("Item has a pending cancellation");
+        OrderItem item=getItem(index);
+        synchronized(item){item.updatePending(quantity,instructions);}
+        if(context!=null)context.audit("Employee "+restuarant.auth.Access.current().getEmployeeId()+" updated order "+orderId+" item "+(index+1)+" quantity "+quantity+" instructions "+instructions);
+    }
+    public synchronized void cancelWhole(){
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
+        ensureEditable();
+        for(int i=0;i<itemCount;i++)if(items[i].getStatus()!=OrderItem.Status.PENDING && items[i].getStatus()!=OrderItem.Status.CANCELLED)throw new IllegalStateException("Whole-order cancellation requires every remaining dish to be pending");
+        for(int i=0;i<itemCount;i++)if(items[i].getStatus()==OrderItem.Status.PENDING)items[i].cancel();
+        status=OrderStatus.CLOSED;
+    }
+
     private boolean paymentStarted;
     private restuarant.billing.Bill bill;
     public boolean isSettled() { return bill!=null && bill.isFullyPaid(); }
@@ -32,6 +65,7 @@ public class Order implements Serializable{
     public void attachBill(restuarant.billing.Bill value) { if(value==null || value.getOrder()!=this || (bill!=null && bill!=value)) throw new IllegalArgumentException("Conflicting bill"); bill=value; }
     public void transferTo(int table) { if(status!=OrderStatus.OPEN) throw new IllegalStateException("Order closed"); tableNumber=table; }
     public synchronized void ensureEditable() {
+        requireOperational();
         if(status!=OrderStatus.OPEN || paymentStarted) throw new IllegalStateException("Order closed or payment started");
     }
     public java.math.BigDecimal subtotalMoney() {
@@ -107,6 +141,7 @@ public class Order implements Serializable{
                         String instructions) {
 
         ensureEditable();
+        if(cancellationService!=null && cancellationService.isWholeHeld(orderId))throw new IllegalStateException("Whole-order cancellation is pending");
         restuarant.auth.Access.order(this);
         if (status != OrderStatus.OPEN) {
             throw new IllegalStateException(
@@ -137,18 +172,7 @@ public class Order implements Serializable{
         return items[index];
     }
 
-    public double calculateSubtotal() {
-        double total = 0;
-
-        for (int i = 0; i < itemCount; i++) {
-            if (items[i].getStatus()
-                    != OrderItem.Status.CANCELLED) {
-                total += items[i].getTotalPrice();
-            }
-        }
-
-        return subtotalMoney().doubleValue();
-    }
+    public double calculateSubtotal() { return subtotalMoney().doubleValue(); }
 
     public synchronized void closeOrder() {
         restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.CASHIER);
@@ -192,6 +216,7 @@ public class Order implements Serializable{
         }
 
         result.append("\nStatus: ").append(status);
+        result.append("\nPriority: ").append(urgent?"URGENT":"NORMAL").append(" | ").append(priorityReason==null?"":priorityReason);
         result.append("\n-----------------------------");
 
         for (int i = 0; i < itemCount; i++) {
@@ -203,12 +228,7 @@ public class Order implements Serializable{
 
         result.append("\n-----------------------------");
 
-        result.append(
-            String.format(
-                "\nSubtotal: Rs. %.2f",
-                calculateSubtotal()
-            )
-        );
+        result.append("\nSubtotal: Rs. ").append(subtotalMoney().toPlainString());
 
         return result.toString();
     }

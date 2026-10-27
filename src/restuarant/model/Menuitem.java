@@ -75,6 +75,6 @@ public class Menuitem implements Serializable{
         this.available = available;
     }
     public String toString(){
-        return String.format("%d | %s | %s | Rs. %.2f | %d min | %s", id, name, category, price, preparationTime, available ? "Available" : "Unavailable");
+        return String.format("%d | %s | %s | Rs. %s | %d min | %s", id, name, category, priceMoney().toPlainString(), preparationTime, available ? "Available" : "Unavailable");
     }
 }

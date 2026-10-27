@@ -19,19 +19,31 @@ public class OrderItem implements Serializable{
     void attach(Order o) { owner=o; }
     public java.math.BigDecimal priceMoney() { return exactPrice==null ? java.math.BigDecimal.valueOf(unitPrice).setScale(2,java.math.RoundingMode.HALF_UP) : exactPrice; }
     public java.math.BigDecimal totalMoney() { return priceMoney().multiply(java.math.BigDecimal.valueOf(quantity)); }
-    public synchronized void cancel() {
+    private long queuedAt=System.currentTimeMillis();
+    public long getQueuedAt(){return queuedAt;}
+    void updatePending(int count,String notes){
+        if(owner==null)throw new IllegalStateException("Unattached dish");
+        owner.ensureEditable();
+        if(status!=Status.PENDING)throw new IllegalStateException("Only pending dishes can be updated");
+        if(count<=0)throw new IllegalArgumentException("Quantity must be positive; request cancellation to remove a line");
+        quantity=count;instructions=notes==null?"":notes.trim();
+    }
+    public void cancel() {
+        if(owner==null)throw new IllegalStateException("Unattached dish");
+        synchronized(owner){ synchronized(this){
         restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
         if(owner==null) throw new IllegalStateException("Unattached dish");
         owner.ensureEditable();
         if(status!=Status.PENDING) throw new IllegalStateException("Only pending dishes can be cancelled");
         status=Status.CANCELLED;
+        }}
     }
     public synchronized void recoverInterrupted() {
         if(status==Status.PREPARING) { status=Status.PENDING; assignedChefId=0; preparationStartedAt=0; preparationFinishedAt=0; }
     }
-    private final int quantity;
+    private int quantity;
     private final double unitPrice;
-    private final String instructions;
+    private String instructions;
     private int assignedChefId = 0;
     private long preparationStartedAt = 0;
     private long preparationFinishedAt = 0;
@@ -151,10 +163,10 @@ public class OrderItem implements Serializable{
 
     public String toString() {
         return String.format(
-            "%s | Qty: %d | Rs. %.2f | %s | %s",
+            "%s | Qty: %d | Rs. %s | %s | %s",
             menuItem.getName(),
             quantity,
-            getTotalPrice(),
+            totalMoney().toPlainString(),
             status,
             instructions.isEmpty()
                 ? "No special instructions" : instructions
