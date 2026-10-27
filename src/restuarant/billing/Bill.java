@@ -12,7 +12,7 @@ public class Bill implements Serializable{
     private final BigDecimal taxRate;
 
     private BigDecimal discountRate;
-    private final Payment[] payments;
+    private Payment[] payments;
     private int paymentCount;
 
     public Bill(Order order, BigDecimal taxRate) {
@@ -31,6 +31,7 @@ public class Bill implements Serializable{
 
         this.payments = new Payment[20];
         this.paymentCount = 0;
+        order.attachBill(this);
     }
 
     public int getOrderId() {
@@ -47,7 +48,7 @@ public class Bill implements Serializable{
 
             if (item.getStatus() != OrderItem.Status.CANCELLED) {
 
-                BigDecimal price = BigDecimal.valueOf( item.getUnitPrice() );
+                BigDecimal price = item.priceMoney();
 
                 total = total.add( price.multiply( BigDecimal.valueOf( item.getQuantity() ) ) );
             }
@@ -91,6 +92,10 @@ public class Bill implements Serializable{
     }
 
     public void setDiscountRate(BigDecimal rate) {
+        synchronized(order) {
+
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
+        order.ensureEditable();
 
         if (rate == null || rate.signum() < 0 || rate.compareTo(new BigDecimal("100")) > 0) {
             throw new IllegalArgumentException( "Discount must be between 0 and 100" );
@@ -101,16 +106,22 @@ public class Bill implements Serializable{
         }
 
         discountRate = rate;
+    
+        }
     }
 
     public void addPayment(Payment payment) {
+        synchronized(order) {
+
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.CASHIER);
+        if(order.getStatus()!=Order.OrderStatus.OPEN) throw new IllegalStateException("Order closed");
 
         if (payment == null || payment.getOrderId() != getOrderId()) {
             throw new IllegalArgumentException( "Payment does not belong to this bill" );
         }
 
         if (paymentCount >= payments.length) {
-            throw new IllegalStateException( "Payment record limit reached");
+            payments=java.util.Arrays.copyOf(payments, Math.max(1,payments.length*2));
         }
 
         for (int i = 0; i < paymentCount; i++) {
@@ -124,8 +135,12 @@ public class Bill implements Serializable{
         }
 
         payments[paymentCount++] = payment;
+        order.lockForPayment();
+    
+        }
     }
 
+    public Order getOrder() { return order; }
     public int getPaymentCount() {
         return paymentCount;
     }

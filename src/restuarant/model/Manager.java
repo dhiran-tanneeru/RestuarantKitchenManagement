@@ -2,6 +2,7 @@
 package restuarant.model;
 
 public class Manager extends Employee {
+    private static final long serialVersionUID = -7968944658915240968L;
 
     public Manager(int employeeId, String name) {
         super(employeeId, name);
@@ -22,11 +23,6 @@ public class Manager extends Employee {
             throw new IllegalStateException("Manager is inactive");
         }
 
-        System.out.println(
-            "Manager " + getName()
-            + " approved cancellation request for order "
-            + orderId
-        );
+        throw new IllegalStateException("Use CancellationService.decide with a cancellation request ID; order-only approval is unsafe");
     }
 }
-

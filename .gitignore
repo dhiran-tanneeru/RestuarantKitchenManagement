@@ -1,35 +1,9 @@
-
-# Java compiled files
-*.class
-*.jar
-*.war
-
-# Build directories
-bin/
-out/
 build/
-target/
-
-# VS Code
-.vscode/
-
-# IntelliJ IDEA
-.idea/
-*.iml
-
-# Operating system files
-.DS_Store
-Thumbs.db
-
-# Temporary files
-*.log
+out/
+*.class
+data/
+*.dat
+*.dat.bak
+*.lock
 *.tmp
-*.bak
-
-# Sensitive files
-.env
-*.key
-
-# Runtime restaurant data
-data/*.tmp
-data/*.bak
+sources.txt

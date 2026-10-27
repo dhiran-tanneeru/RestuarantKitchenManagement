@@ -9,7 +9,17 @@ public class RestuarantTable implements Serializable{
         CLEANING
     }
     private final int TableNumber;
-    private final int capacity;
+    private int capacity;
+    private Order activeOrder;
+    public void attachOrder(Order order) { activeOrder=order; }
+    private void noActiveOrder() { if(activeOrder!=null && activeOrder.getStatus()==Order.OrderStatus.OPEN) throw new IllegalStateException("Table still has an active order"); }
+    public void setCapacity(int value) {
+        if(value<=0 || status!=Status.AVAILABLE) throw new IllegalStateException("Positive capacity and available table required");
+        noActiveOrder(); capacity=value;
+    }
+    public void reassignWaiter(int id) { if(id<=0 || status!=Status.OCCUPIED) throw new IllegalStateException("Occupied table and valid waiter required"); waiterId=id; }
+    public void releaseForTransfer(Order order) { if(activeOrder!=order || order.getTableNumber()==TableNumber) throw new IllegalStateException("Order has not moved"); activeOrder=null; status=Status.CLEANING; }
+
     private int GuestCount;
     private int waiterId;
     private Status status;
@@ -45,7 +55,10 @@ public class RestuarantTable implements Serializable{
         return status;
     }
 
-    public void seatGuests(int guests, int waiterId){
+    public synchronized void seatGuests(int guests, int waiterId){
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.WAITER);
+        restuarant.auth.Access.activeEmployee(waiterId,restuarant.auth.StaffAccount.Role.WAITER);
+        noActiveOrder();
         if(status != Status.AVAILABLE){
             throw new IllegalStateException("Table is not available");
         }
@@ -61,6 +74,7 @@ public class RestuarantTable implements Serializable{
     }
 
     public void markForCleaning(){
+        noActiveOrder();
         if(status != Status.OCCUPIED){
             throw new IllegalArgumentException("Table is not occupied");
         }
@@ -68,6 +82,7 @@ public class RestuarantTable implements Serializable{
     }
 
     public void finishCleaning(){
+        noActiveOrder();
         if(status != Status.CLEANING){
             throw new IllegalArgumentException("Table is not being cleaned");
         }
@@ -78,6 +93,20 @@ public class RestuarantTable implements Serializable{
 
     public String toString(){
         return String.format( "Table %d | Capacity: %d | Guests: %d | Waiter ID: %d | Status: %s", TableNumber, capacity, GuestCount, waiterId, status);
+    }
+
+    public void rollbackSeating() {
+        noActiveOrder();
+
+        if (status != Status.OCCUPIED) {
+            throw new IllegalStateException(
+                "Only occupied tables can be rolled back"
+            );
+        }
+
+        status = Status.AVAILABLE;
+        GuestCount = 0;
+        waiterId = 0;
     }
 
 }

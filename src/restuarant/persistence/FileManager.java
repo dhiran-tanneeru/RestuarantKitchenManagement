@@ -45,7 +45,7 @@ public class FileManager {
             throw new FileNotFoundException( "No restaurant save file found");
         }
 
-        try (ObjectInputStream input = new ObjectInputStream( new BufferedInputStream( Files.newInputStream(SAVE_FILE)))) {
+        try (ObjectInputStream input = new restuarant.persistence.SnapshotStore.SafeInput( new BufferedInputStream( Files.newInputStream(SAVE_FILE)))) {
 
             Object data = input.readObject();
 

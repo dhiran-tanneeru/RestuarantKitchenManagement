@@ -1,6 +1,7 @@
 package restuarant.model;
 
 public class Cashier extends Employee {
+    private static final long serialVersionUID = -1375504314393785958L;
 
     public Cashier(int employeeId, String name) {
         super(employeeId, name);

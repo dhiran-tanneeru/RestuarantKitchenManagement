@@ -1,0 +1,417 @@
+FIRST-TIME ADMIN SETUP (ID 1)
+Administrator name: Warning: password input is visible because a secure system console is unavailable.
+Create password: Confirm password: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: Employee ID: Password: Welcome, Console Admin
+
+===== ADMIN DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+5. Employees  6. Configure menu  7. Configure tables
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+14. Review cancellations  15. Transfer table  16. Reassign waiter  17. Discount  18. Reports  19. Operational history  20. Manual seating  29. Abandon empty order
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: 
+===== EMPLOYEES =====
+1. List / workloads  2. Search  3. Add  4. Rename  5. Role  6. Activate  7. Deactivate  8. Reset password  9. Chef categories  0. Back
+Choice: Employee ID: Name: ADMIN / MANAGER / WAITER / CHEF / CASHIER: Password: Confirm: 
+===== EMPLOYEES =====
+1. List / workloads  2. Search  3. Add  4. Rename  5. Role  6. Activate  7. Deactivate  8. Reset password  9. Chef categories  0. Back
+Choice: Employee ID: Name: ADMIN / MANAGER / WAITER / CHEF / CASHIER: Password: Confirm: 
+===== EMPLOYEES =====
+1. List / workloads  2. Search  3. Add  4. Rename  5. Role  6. Activate  7. Deactivate  8. Reset password  9. Chef categories  0. Back
+Choice: Employee ID: Name: ADMIN / MANAGER / WAITER / CHEF / CASHIER: Password: Confirm: 
+===== EMPLOYEES =====
+1. List / workloads  2. Search  3. Add  4. Rename  5. Role  6. Activate  7. Deactivate  8. Reset password  9. Chef categories  0. Back
+Choice: Employee ID: Name: ADMIN / MANAGER / WAITER / CHEF / CASHIER: Password: Confirm: 
+===== EMPLOYEES =====
+1. List / workloads  2. Search  3. Add  4. Rename  5. Role  6. Activate  7. Deactivate  8. Reset password  9. Chef categories  0. Back
+Choice: 
+===== ADMIN DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+5. Employees  6. Configure menu  7. Configure tables
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+14. Review cancellations  15. Transfer table  16. Reassign waiter  17. Discount  18. Reports  19. Operational history  20. Manual seating  29. Abandon empty order
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: Dish ID (existing updates): Name: Category: Price: Menu preparation minutes: Available (yes/no): 
+===== ADMIN DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+5. Employees  6. Configure menu  7. Configure tables
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+14. Review cancellations  15. Transfer table  16. Reassign waiter  17. Discount  18. Reports  19. Operational history  20. Manual seating  29. Abandon empty order
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: Table number: Capacity: 
+===== ADMIN DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+5. Employees  6. Configure menu  7. Configure tables
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+14. Review cancellations  15. Transfer table  16. Reassign waiter  17. Discount  18. Reports  19. Operational history  20. Manual seating  29. Abandon empty order
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: Employee ID: Password: Welcome, Waiter
+
+===== WAITER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+28. Save / retry save  0. Logout
+Choice: Guests: 
+Order ID: 1001
+Type: DINE_IN
+Table: 1
+Status: OPEN
+-----------------------------
+-----------------------------
+Subtotal: Rs. 0.00
+
+===== WAITER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+28. Save / retry save  0. Logout
+Choice: Order ID: Dish ID: Quantity: Special instructions: 
+===== WAITER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+28. Save / retry save  0. Logout
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: Employee ID: Password: Welcome, Chef
+
+===== CHEF DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: Order 1001 item 1 | Meal | Qty: 1 | Rs. 100.00 | READY | No chilli | Chef 4
+
+===== CHEF DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: Employee ID: Password: Welcome, Waiter
+
+===== WAITER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+28. Save / retry save  0. Logout
+Choice: Order ID: Item number (1-based): 
+===== WAITER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+28. Save / retry save  0. Logout
+Choice: Order ID: 
+========== BILL ==========
+Order: #1001
+Subtotal: Rs. 100.00
+Discount: Rs. 0.00
+Tax: Rs. 5.00
+--------------------------
+Total: Rs. 105.00
+Paid: Rs. 0
+Balance: Rs. 105.00
+Status: UNPAID
+==========================
+
+===== WAITER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+28. Save / retry save  0. Logout
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: Employee ID: Password: Welcome, Manager
+
+===== MANAGER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+14. Review cancellations  15. Transfer table  16. Reassign waiter  17. Discount  18. Reports  19. Operational history  20. Manual seating  29. Abandon empty order
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: Order ID: Discount percent 0..100: 
+===== MANAGER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+14. Review cancellations  15. Transfer table  16. Reassign waiter  17. Discount  18. Reports  19. Operational history  20. Manual seating  29. Abandon empty order
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: Employee ID: Password: Welcome, Cashier
+
+===== CASHIER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+28. Save / retry save  0. Logout
+Choice: Order ID: CASH / UPI / CARD: Amount: Payment #1 | Order #1001 | CASH | Rs. 40.00 | 2026-10-26T13:58:06.331771097
+
+========== BILL ==========
+Order: #1001
+Subtotal: Rs. 100.00
+Discount: Rs. 10.00
+Tax: Rs. 4.50
+--------------------------
+Total: Rs. 94.50
+Paid: Rs. 40.00
+Balance: Rs. 54.50
+Status: UNPAID
+==========================
+
+===== CASHIER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+28. Save / retry save  0. Logout
+Choice: Order ID: CASH / UPI / CARD: Amount: Payment #2 | Order #1001 | UPI | Rs. 54.50 | 2026-10-26T13:58:06.337826955
+
+========== BILL ==========
+Order: #1001
+Subtotal: Rs. 100.00
+Discount: Rs. 10.00
+Tax: Rs. 4.50
+--------------------------
+Total: Rs. 94.50
+Paid: Rs. 94.50
+Balance: Rs. 0.00
+Status: PAID
+==========================
+
+===== CASHIER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+28. Save / retry save  0. Logout
+Choice: Order ID: 
+===== CASHIER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+28. Save / retry save  0. Logout
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: Employee ID: Password: Welcome, Waiter
+
+===== WAITER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+28. Save / retry save  0. Logout
+Choice: Cleaned table number: 
+===== WAITER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+28. Save / retry save  0. Logout
+Choice: Table 1 | Capacity: 4 | Guests: 0 | Waiter ID: 0 | Status: AVAILABLE
+
+===== WAITER WORKLOAD =====
+3 | Waiter | Active: true | Occupied Tables: 0
+
+===== WAITER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+28. Save / retry save  0. Logout
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: Employee ID: Password: Welcome, Cashier
+
+===== CASHIER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+28. Save / retry save  0. Logout
+Choice: 
+===== TAKEAWAY WORKSPACE =====
+1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request cancellation  0. Back
+Choice: Pickup token / order ID: 1002
+
+===== TAKEAWAY WORKSPACE =====
+1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request cancellation  0. Back
+Choice: Order ID: Dish ID: Quantity: Special instructions: 
+===== TAKEAWAY WORKSPACE =====
+1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request cancellation  0. Back
+Choice: Order ID: 
+========== BILL ==========
+Order: #1002
+Subtotal: Rs. 100.00
+Discount: Rs. 0.00
+Tax: Rs. 5.00
+--------------------------
+Total: Rs. 105.00
+Paid: Rs. 0
+Balance: Rs. 105.00
+Status: UNPAID
+==========================
+
+===== TAKEAWAY WORKSPACE =====
+1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request cancellation  0. Back
+Choice: Order ID: CASH / UPI / CARD: Amount: Payment #3 | Order #1002 | CARD | Rs. 105.00 | 2026-10-26T13:58:06.433424245
+
+========== BILL ==========
+Order: #1002
+Subtotal: Rs. 100.00
+Discount: Rs. 0.00
+Tax: Rs. 5.00
+--------------------------
+Total: Rs. 105.00
+Paid: Rs. 105.00
+Balance: Rs. 0.00
+Status: PAID
+==========================
+
+===== TAKEAWAY WORKSPACE =====
+1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request cancellation  0. Back
+Choice: 
+Order ID: 1002
+Type: TAKEAWAY
+Status: OPEN
+-----------------------------
+1. Meal | Qty: 1 | Rs. 100.00 | PREPARING | No special instructions
+-----------------------------
+Subtotal: Rs. 100.00
+Ready for collection: false
+
+===== TAKEAWAY WORKSPACE =====
+1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request cancellation  0. Back
+Choice: 
+Order ID: 1002
+Type: TAKEAWAY
+Status: OPEN
+-----------------------------
+1. Meal | Qty: 1 | Rs. 100.00 | READY | No special instructions
+-----------------------------
+Subtotal: Rs. 100.00
+Ready for collection: true
+
+===== TAKEAWAY WORKSPACE =====
+1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request cancellation  0. Back
+Choice: Order ID: 
+===== TAKEAWAY WORKSPACE =====
+1. Create  2. Add dishes  3. Track active / completed  4. Bill  5. Pay  6. Collect and close  7. Request cancellation  0. Back
+Choice: 
+===== CASHIER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+28. Save / retry save  0. Logout
+Choice: Order ID (0 for reports): Cash receipts (includes tax and partial payments): 199.50
+Today's receipts (2026-10-26): 199.50
+Closed settled sales (includes tax): 199.50
+Outstanding billed balances: 0.00
+Unbilled open orders: 0 | subtotal: 0
+Payment methods: {CASH=40.00, UPI=54.50, CARD=105.00}
+Orders: open=0, closed=2, takeaway=1
+Best-selling dishes (closed orders, quantities): [Meal=2]
+Transactions:
+Payment #1 | Order #1001 | CASH | Rs. 40.00 | 2026-10-26T13:58:06.331771097
+Payment #2 | Order #1001 | UPI | Rs. 54.50 | 2026-10-26T13:58:06.337826955
+Payment #3 | Order #1002 | CARD | Rs. 105.00 | 2026-10-26T13:58:06.433424245
+
+
+===== CASHIER DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+28. Save / retry save  0. Logout
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: Employee ID: Warning: password input is visible because a secure system console is unavailable.
+Password: Welcome, Console Admin
+
+===== ADMIN DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+5. Employees  6. Configure menu  7. Configure tables
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+14. Review cancellations  15. Transfer table  16. Reassign waiter  17. Discount  18. Reports  19. Operational history  20. Manual seating  29. Abandon empty order
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: Cash receipts (includes tax and partial payments): 199.50
+Today's receipts (2026-10-26): 199.50
+Closed settled sales (includes tax): 199.50
+Outstanding billed balances: 0.00
+Unbilled open orders: 0 | subtotal: 0
+Payment methods: {CASH=40.00, UPI=54.50, CARD=105.00}
+Orders: open=0, closed=2, takeaway=1
+Best-selling dishes (closed orders, quantities): [Meal=2]
+Transactions:
+Payment #1 | Order #1001 | CASH | Rs. 40.00 | 2026-10-26T13:58:06.331771097
+Payment #2 | Order #1001 | UPI | Rs. 54.50 | 2026-10-26T13:58:06.337826955
+Payment #3 | Order #1002 | CARD | Rs. 105.00 | 2026-10-26T13:58:06.433424245
+
+
+===== ADMIN DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+5. Employees  6. Configure menu  7. Configure tables
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+14. Review cancellations  15. Transfer table  16. Reassign waiter  17. Discount  18. Reports  19. Operational history  20. Manual seating  29. Abandon empty order
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: 
+Order ID: 1001
+Type: DINE_IN
+Table: 1
+Status: CLOSED
+-----------------------------
+1. Meal | Qty: 1 | Rs. 100.00 | SERVED | No chilli
+-----------------------------
+Subtotal: Rs. 100.00
+
+Order ID: 1002
+Type: TAKEAWAY
+Status: CLOSED
+-----------------------------
+1. Meal | Qty: 1 | Rs. 100.00 | COLLECTED | No special instructions
+-----------------------------
+Subtotal: Rs. 100.00
+
+===== ADMIN DASHBOARD =====
+1. Menu  2. Tables / assignments  3. Orders  4. Kitchen
+5. Employees  6. Configure menu  7. Configure tables
+8. Automatic seating  9. Add dishes  10. Serve dish  11. Request / view bill  12. Request cancellation  13. Finish cleaning
+14. Review cancellations  15. Transfer table  16. Reassign waiter  17. Discount  18. Reports  19. Operational history  20. Manual seating  29. Abandon empty order
+21. Record payment (repeat for split / partial payments)
+22. Close paid dine-in order  23. Takeaway workspace  24. View bill / reports
+25. Run automatic kitchen  26. Chef: claim next dish  27. Chef: mark assigned dish ready
+28. Save / retry save  0. Logout
+Choice: 
+===== RESTAURANT STAFF LOGIN =====
+1. Login
+0. Exit
+Choice: 

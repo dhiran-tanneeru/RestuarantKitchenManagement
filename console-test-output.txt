@@ -1,0 +1,2 @@
+PASS | Main console: first Admin, all role logins, staff/menu/table setup, seating, cooking, serving, discount, split payment, checkout, cleaning, takeaway, reports, process exit/restart and persisted totals
+PASS | No operation failures in captured console transcript

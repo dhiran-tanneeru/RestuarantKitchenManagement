@@ -14,6 +14,21 @@ public class OrderItem implements Serializable{
     }
 
     private final Menuitem menuItem;
+    private java.math.BigDecimal exactPrice;
+    private transient Order owner;
+    void attach(Order o) { owner=o; }
+    public java.math.BigDecimal priceMoney() { return exactPrice==null ? java.math.BigDecimal.valueOf(unitPrice).setScale(2,java.math.RoundingMode.HALF_UP) : exactPrice; }
+    public java.math.BigDecimal totalMoney() { return priceMoney().multiply(java.math.BigDecimal.valueOf(quantity)); }
+    public synchronized void cancel() {
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
+        if(owner==null) throw new IllegalStateException("Unattached dish");
+        owner.ensureEditable();
+        if(status!=Status.PENDING) throw new IllegalStateException("Only pending dishes can be cancelled");
+        status=Status.CANCELLED;
+    }
+    public synchronized void recoverInterrupted() {
+        if(status==Status.PREPARING) { status=Status.PENDING; assignedChefId=0; preparationStartedAt=0; preparationFinishedAt=0; }
+    }
     private final int quantity;
     private final double unitPrice;
     private final String instructions;
@@ -38,7 +53,8 @@ public class OrderItem implements Serializable{
             throw new IllegalArgumentException("Quantity must be positive");
         }
 
-        this.menuItem = menuitem;
+        this.menuItem = new Menuitem(menuitem.getId(),menuitem.getName(),menuitem.getCategory(),menuitem.getPrice(),menuitem.getPreparationTime());
+        this.exactPrice=menuitem.priceMoney();
         this.quantity = quantity;
         this.unitPrice = menuItem.getPrice();
         this.instructions = instructions == null? "" : instructions.trim();
@@ -67,7 +83,7 @@ public class OrderItem implements Serializable{
     }
 
     public double getTotalPrice() {
-        return unitPrice * quantity;
+        return totalMoney().doubleValue();
     }
 
 
@@ -115,14 +131,18 @@ public class OrderItem implements Serializable{
     }
 
 
-    public void markServed() {
+    public synchronized void markServed() {
+        if(owner==null || owner.getOrderType()!=Order.OrderType.DINE_IN) throw new IllegalStateException("Dine-in dish required");
+        restuarant.auth.Access.order(owner);
         if (status != Status.READY) {
             throw new IllegalStateException("Item is not ready");
         }
         status = Status.SERVED;
     }
 
-    public void markCollected() {
+    public synchronized void markCollected() {
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.CASHIER);
+        if(owner==null || owner.getOrderType()!=Order.OrderType.TAKEAWAY || !owner.isSettled()) throw new IllegalStateException("Fully paid takeaway required");
         if (status != Status.READY) {
             throw new IllegalStateException("Item is not ready");
         }

@@ -8,6 +8,12 @@ public class Menuitem implements Serializable{
     private String name;
     private String category;
     private double price;
+    private java.math.BigDecimal exactPrice;
+    public java.math.BigDecimal priceMoney() { return exactPrice==null ? java.math.BigDecimal.valueOf(price).setScale(2,java.math.RoundingMode.HALF_UP) : exactPrice; }
+    public void setPrice(java.math.BigDecimal value) {
+        if(value==null || value.signum()<0 || value.scale()>2 || !Double.isFinite(value.doubleValue())) throw new IllegalArgumentException("Use a nonnegative price with at most 2 decimals");
+        exactPrice=value.setScale(2); price=value.doubleValue();
+    }
     private int preparationTime;
     private boolean available;
 
@@ -57,6 +63,7 @@ public class Menuitem implements Serializable{
             throw new IllegalArgumentException("Invalid price");
         }
         this.price = price;
+        exactPrice=java.math.BigDecimal.valueOf(price).setScale(2,java.math.RoundingMode.HALF_UP);
     }
     public void setPreparationTime(int minutes){
         if(minutes<= 0 ){

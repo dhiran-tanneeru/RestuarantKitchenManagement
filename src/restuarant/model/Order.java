@@ -16,9 +16,31 @@ public class Order implements Serializable{
 
     private final int orderId;
     private final OrderType orderType;
-    private final int tableNumber;
+    private int tableNumber;
+    private int waiterId;
+    private boolean paymentStarted;
+    private restuarant.billing.Bill bill;
+    public boolean isSettled() { return bill!=null && bill.isFullyPaid(); }
+    public void abandonEmpty() {
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
+        ensureEditable(); if(itemCount!=0) throw new IllegalStateException("Only empty orders can be abandoned");status=OrderStatus.CLOSED;
+    }
+    public int getWaiterId() { return waiterId; }
+    public void assignWaiter(int id) { waiterId=id; }
+    public boolean hasPaymentStarted() { return paymentStarted; }
+    public synchronized void lockForPayment() { paymentStarted=true; }
+    public void attachBill(restuarant.billing.Bill value) { if(value==null || value.getOrder()!=this || (bill!=null && bill!=value)) throw new IllegalArgumentException("Conflicting bill"); bill=value; }
+    public void transferTo(int table) { if(status!=OrderStatus.OPEN) throw new IllegalStateException("Order closed"); tableNumber=table; }
+    public synchronized void ensureEditable() {
+        if(status!=OrderStatus.OPEN || paymentStarted) throw new IllegalStateException("Order closed or payment started");
+    }
+    public java.math.BigDecimal subtotalMoney() {
+        java.math.BigDecimal sum=java.math.BigDecimal.ZERO;
+        for(int i=0;i<itemCount;i++) if(items[i].getStatus()!=OrderItem.Status.CANCELLED) sum=sum.add(items[i].totalMoney());
+        return sum.setScale(2,java.math.RoundingMode.HALF_UP);
+    }
 
-    private final OrderItem[] items;
+    private OrderItem[] items;
     private int itemCount;
 
     private OrderStatus status;
@@ -81,9 +103,11 @@ public class Order implements Serializable{
         return status;
     }
 
-    public void addItem(Menuitem menuItem, int quantity,
+    public synchronized void addItem(Menuitem menuItem, int quantity,
                         String instructions) {
 
+        ensureEditable();
+        restuarant.auth.Access.order(this);
         if (status != OrderStatus.OPEN) {
             throw new IllegalStateException(
                 "Cannot modify a closed order"
@@ -91,15 +115,14 @@ public class Order implements Serializable{
         }
 
         if (itemCount >= items.length) {
-            throw new IllegalStateException(
-                "Order item limit reached"
-            );
+            items=java.util.Arrays.copyOf(items, Math.max(1,items.length*2));
         }
 
         OrderItem item = new OrderItem(
             menuItem, quantity, instructions
         );
 
+        item.attach(this);
         items[itemCount] = item;
         itemCount++;
     }
@@ -124,10 +147,12 @@ public class Order implements Serializable{
             }
         }
 
-        return total;
+        return subtotalMoney().doubleValue();
     }
 
-    public void closeOrder() {
+    public synchronized void closeOrder() {
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.CASHIER);
+        if(bill==null || !bill.isFullyPaid()) throw new IllegalStateException("Bill must be fully settled");
         if (status == OrderStatus.CLOSED) {
             throw new IllegalStateException(
                 "Order already closed"
@@ -151,6 +176,9 @@ public class Order implements Serializable{
         status = OrderStatus.CLOSED;
     }
 
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+        in.defaultReadObject(); for(int i=0;i<itemCount;i++) items[i].attach(this);
+    }
     @Override
     public String toString() {
 

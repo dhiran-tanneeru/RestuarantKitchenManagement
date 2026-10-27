@@ -9,11 +9,13 @@ import java.math.BigDecimal;
 public class BillingService implements Serializable{
     private static final long serialVersionUID = 1L;
 
-    private final Bill[] bills = new Bill[500];
+    private Bill[] bills = new Bill[500];
     private int billCount = 0;
     private int nextPaymentId = 1;
 
     private final BigDecimal taxRate;
+    private transient OrderServices orderRegistry;
+    public void bind(OrderServices registry) { if(orderRegistry!=null && orderRegistry!=registry) throw new IllegalStateException("Already bound"); orderRegistry=registry; }
 
     public BillingService(BigDecimal taxRate) {
         if (taxRate == null || taxRate.signum() < 0 || taxRate.compareTo( new BigDecimal("100")) > 0) {
@@ -34,7 +36,11 @@ public class BillingService implements Serializable{
         return null;
     }
 
-    public Bill generateBill(Order order) {
+    public synchronized Bill generateBill(Order order) {
+        if(order==null) throw new IllegalArgumentException("Order required");
+        if(orderRegistry!=null && orderRegistry.findOrder(order.getOrderId())!=order) throw new IllegalArgumentException("Order is not in the restaurant registry");
+        restuarant.auth.StaffAccount actor=restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.CASHIER,restuarant.auth.StaffAccount.Role.WAITER);
+        if(actor.getRole()==restuarant.auth.StaffAccount.Role.WAITER) restuarant.auth.Access.order(order);
 
         if (order == null) {
             throw new IllegalArgumentException( "Order not found");
@@ -43,6 +49,7 @@ public class BillingService implements Serializable{
         Bill existing = findBill(order.getOrderId());
 
         if (existing != null) {
+            if(existing.getOrder()!=order) throw new IllegalArgumentException("Conflicting order identity");
             return existing;
         }
 
@@ -55,7 +62,7 @@ public class BillingService implements Serializable{
         }
 
         if (billCount >= bills.length) {
-            throw new IllegalStateException( "Bill storage full" );
+            bills=java.util.Arrays.copyOf(bills, Math.max(1,bills.length*2));
         }
 
         Bill bill = new Bill(order, taxRate);
@@ -67,6 +74,7 @@ public class BillingService implements Serializable{
     public void applyPredefinedDiscount(
             int orderId, Cashier cashier) {
 
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
         if (cashier == null || !cashier.isActive()) {
             throw new IllegalStateException( "Active cashier required");
         }
@@ -78,6 +86,7 @@ public class BillingService implements Serializable{
 
     public void applySpecialDiscount( int orderId, BigDecimal rate, Manager manager) {
 
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER);
         if (manager == null || !manager.isActive()) {
             throw new IllegalStateException("Manager approval required");
         }
@@ -85,11 +94,12 @@ public class BillingService implements Serializable{
         Bill bill = requireBill(orderId);
         bill.setDiscountRate(rate);
 
-        System.out.println("Special discount approved by " + manager.getName());
+        System.out.println("Special discount approved by " + restuarant.auth.Access.current().getName());
     }
 
-    public Payment recordPayment( int orderId, Payment.Method method, BigDecimal amount, Cashier cashier) {
+    public synchronized Payment recordPayment( int orderId, Payment.Method method, BigDecimal amount, Cashier cashier) {
 
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.CASHIER);
         if (cashier == null || !cashier.isActive()) {
             throw new IllegalStateException( "Active cashier required");
         }
@@ -109,12 +119,15 @@ public class BillingService implements Serializable{
     }
 
     public void closePaidOrder( Order order, RestuarantTable table) {
+        restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.MANAGER,restuarant.auth.StaffAccount.Role.CASHIER);
 
         if (order == null) {
             throw new IllegalArgumentException( "Order required");
         }
 
         Bill bill = requireBill(order.getOrderId());
+        if(bill.getOrder()!=order || (orderRegistry!=null && orderRegistry.findOrder(order.getOrderId())!=order)) throw new IllegalArgumentException("Order does not match canonical bill");
+        if(order.getOrderType()==Order.OrderType.DINE_IN && orderRegistry!=null && orderRegistry.findTable(order.getTableNumber())!=table) throw new IllegalArgumentException("Canonical restaurant table required");
 
         if (!bill.isFullyPaid()) {
             throw new IllegalStateException( "Outstanding payment remains" );
@@ -138,6 +151,21 @@ public class BillingService implements Serializable{
         }
     }
 
+    public Bill[] getBills() { return java.util.Arrays.copyOf(bills,billCount); }
+    public void discount(int id, BigDecimal rate) { requireBill(id).setDiscountRate(rate); }
+    public Payment pay(int id, Payment.Method method, BigDecimal amount) {
+        restuarant.auth.StaffAccount a=restuarant.auth.Access.require(restuarant.auth.StaffAccount.Role.ADMIN,restuarant.auth.StaffAccount.Role.CASHIER);
+        return recordPayment(id,method,amount,new Cashier(a.getEmployeeId(),a.getName()));
+    }
+    public void reconnect() {
+        int max=0;
+        for(int i=0;i<billCount;i++) {
+            Bill b=bills[i]; b.getOrder().attachBill(b); if(b.getPaymentCount()>0) b.getOrder().lockForPayment();
+            for(int j=0;j<b.getPaymentCount();j++) max=Math.max(max,b.getPayment(j).getPaymentId());
+            if(b.getBalance().signum()<0) throw new IllegalStateException("Saved bill is overpaid");
+        }
+        nextPaymentId=Math.max(nextPaymentId,max+1);
+    }
     public boolean hasPayments(int orderId) {
         Bill bill = findBill(orderId);
         return bill != null && bill.getPaymentCount() > 0;
